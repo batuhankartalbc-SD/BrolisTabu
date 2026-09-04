@@ -6,27 +6,104 @@
   <title>Brolis Tabu</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path fill=%22%23E50914%22 d=%22M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 7 19.5 7s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z%22/></svg>">
-  <link rel="apple-touch-icon" href="icon.svg" />
-  <meta name="theme-color" content="#E50914" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect width=%2224%22 height=%2224%22 rx=%225%22 fill=%22%2317100B%22/><rect x=%221.4%22 y=%221.4%22 width=%2221.2%22 height=%2221.2%22 rx=%223.6%22 fill=%22none%22 stroke=%22%23D1AC62%22 stroke-width=%221.4%22/><text x=%2212%22 y=%2217.5%22 font-family=%22Georgia,serif%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23E1C48A%22 text-anchor=%22middle%22>T</text></svg>">
+  <!-- icon-180.png setup-assets.ps1 çalıştırılınca oluşur; oluşana kadar tarayıcı
+       sessizce varsayılan ikona düşer, hiçbir şeyi bozmaz. -->
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+  <meta name="theme-color" content="#17100B" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script>
+    // "Ana Ekrana Ekle" istemini olabildiğince erken yakala — app.js henüz
+    // yüklenmeden bu olay tetiklenebileceğinden en üstte, diğer scriptlerden
+    // önce dinlenir. React tarafı bunu window.__installPromptEvent'ten okur.
+    window.__installPromptEvent = null;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      window.__installPromptEvent = e;
+      window.dispatchEvent(new CustomEvent("bip-captured"));
+    });
+  </script>
 </head>
 <body>
   <div id="root"></div>
+  <div id="splash" aria-hidden="true">
+    <div class="splash-mark">T</div>
+    <div class="splash-spinner"></div>
+  </div>
 
-  <script src="words.js"></script>
-  <script src="audio.js"></script>
-  <script src="app.js"></script>
   <script>
+    // React/React-DOM önce yerel vendor/ kopyasından yüklenmeyi dener
+    // (setup-assets.ps1 çalıştırıldıysa oradadır); yerel kopya yoksa (veya
+    // hiç indirilmediyse) sessizce CDN'e (unpkg) düşer. Bu sayede uygulama
+    // betiği hiç çalıştırılmasa bile bozulmadan CDN üzerinden çalışmaya
+    // devam eder — yerelleştirme tamamen isteğe bağlı bir hızlanma/offline
+    // güvencesidir, bir ön koşul değildir.
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.crossOrigin = "anonymous";
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("Betik yüklenemedi: " + src));
+        document.head.appendChild(s);
+      });
+    }
+    function loadWithFallback(localSrc, cdnSrc) {
+      return loadScript(localSrc).catch(() => loadScript(cdnSrc));
+    }
+
+    loadWithFallback(
+      "vendor/react.production.min.js",
+      "https://unpkg.com/react@18/umd/react.production.min.js"
+    )
+      .then(() =>
+        loadWithFallback(
+          "vendor/react-dom.production.min.js",
+          "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+        )
+      )
+      .then(() => loadScript("words.js"))
+      .then(() => loadScript("audio.js"))
+      .then(() => loadScript("app.js"))
+      .catch((err) => {
+        console.error(err);
+      });
+
+    // Yükleme uzun sürerse (zayıf bağlantı) kullanıcıyı boş bir ekranda
+    // bırakmak yerine 8 saniye sonra bir bağlantı ipucu göster.
+    window.setTimeout(() => {
+      const root = document.getElementById("root");
+      const splash = document.getElementById("splash");
+      if (root && root.childElementCount === 0 && splash && !splash.classList.contains("hidden")) {
+        splash.innerHTML =
+          '<div class="splash-mark">T</div>' +
+          '<p style="color:#d1d5db;font-size:0.85rem;max-width:260px;text-align:center;margin:0;">Bağlantı sorunu olabilir.<br/>Sayfayı yenilemeyi deneyin.</p>';
+      }
+    }, 8000);
+
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js").catch(() => {
-          /* file:// üzerinden açıldıysa veya SW desteklenmiyorsa sessizce yoksay */
-        });
+        navigator.serviceWorker
+          .register("service-worker.js")
+          .then((reg) => {
+            reg.addEventListener("updatefound", () => {
+              const installing = reg.installing;
+              if (!installing) return;
+              installing.addEventListener("statechange", () => {
+                // controller mevcutken "installed" olması bir ilk kurulum değil,
+                // arka planda inen bir güncelleme demektir.
+                if (installing.state === "installed" && navigator.serviceWorker.controller) {
+                  window.dispatchEvent(new CustomEvent("sw-update-available"));
+                }
+              });
+            });
+          })
+          .catch(() => {
+            /* file:// üzerinden açıldıysa veya SW desteklenmiyorsa sessizce yoksay */
+          });
       });
     }
   </script>
