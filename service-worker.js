@@ -1,4 +1,4 @@
-const CACHE_NAME = "brolis-tabu-v2";
+const CACHE_NAME = "brolis-tabu-v7";
 
 // Bu dosyalar aynı origin'den gelir ve önbelleğe alınması garanti olmalıdır —
 // yoksa çevrimdışı açılışta "siyah ekran" (uygulama kabuğu bile yüklenemez) oluşur.
@@ -13,12 +13,20 @@ const LOCAL_SHELL = [
   "./icon.svg",
 ];
 
-// Bunlar CDN'den gelir; ilk kurulumda ağ sorunu yaşanırsa önbelleğe alınamayabilir.
-// "En iyi çaba" (best-effort) olarak eklenir — biri başarısız olursa yerel kabuğun
-// önbelleğe alınmasını ENGELLEMEMELİDİR (cache.addAll atomiktir, tek hata tüm listeyi düşürür).
-const CDN_SHELL = [
+// Bunlar "en iyi çaba" (best-effort) olarak eklenir — biri başarısız olursa
+// yerel kabuğun önbelleğe alınmasını ENGELLEMEMELİDİR (cache.addAll atomiktir,
+// tek hata tüm listeyi düşürür). React/React-DOM'un vendor/ altındaki yerel
+// kopyaları setup-assets.ps1 çalıştırılmadıysa mevcut olmayabilir — bu durumda
+// sadece o iki satır sessizce atlanır, CDN'den yüklenmeye devam edilir. Aynı
+// şekilde icon-*.png dosyaları da o betik çalıştırılana kadar mevcut olmayabilir.
+const OPTIONAL_SHELL = [
+  "./vendor/react.production.min.js",
+  "./vendor/react-dom.production.min.js",
   "https://unpkg.com/react@18/umd/react.production.min.js",
   "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
+  "./icon-180.png",
+  "./icon-192.png",
+  "./icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -28,13 +36,19 @@ self.addEventListener("install", (event) => {
 
       // Yerel kabuk: mutlaka başarılı olmalı (atomik addAll burada güvenlidir,
       // çünkü hepsi aynı origin ve her zaman erişilebilir olmalı).
-      await cache.addAll(LOCAL_SHELL);
+      // { cache: "reload" } ile tarayıcının kendi HTTP önbelleği atlanır: aksi
+      // halde CACHE_NAME sürümü artırılsa bile, tarayıcı hâlâ eski (bir önceki
+      // sürüme ait) app.js/styles.css/index.html yanıtlarını taze kabul edip
+      // yeni Cache Storage kovasına ESKİ baytları yazabilir — kullanıcı "Yenile"ye
+      // bassa bile eski/bozuk sürümü görmeye devam eder.
+      await cache.addAll(LOCAL_SHELL.map((url) => new Request(url, { cache: "reload" })));
 
-      // CDN dosyaları: her biri bağımsız denenir, biri başarısız olursa diğerini etkilemez.
+      // İsteğe bağlı dosyalar: her biri bağımsız denenir, biri başarısız olursa
+      // (ör. vendor/ klasörü henüz oluşturulmadıysa) diğerini etkilemez.
       await Promise.all(
-        CDN_SHELL.map((url) =>
-          cache.add(url).catch(() => {
-            /* CDN kaynağı şu an önbelleğe alınamadı — ilk çevrimiçi yüklemede fetch handler'ı bunu telafi edecek */
+        OPTIONAL_SHELL.map((url) =>
+          cache.add(new Request(url, { cache: "reload" })).catch(() => {
+            /* şu an önbelleğe alınamadı — ilk çevrimiçi yüklemede fetch handler'ı bunu telafi edecek */
           })
         )
       );
