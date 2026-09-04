@@ -1,22 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Arvo:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* =============================================================================
+   BROLIS TABU — Vintage Ahşap Kutu Oyunu Tasarım Sistemi
+   Netflix temalı koyu/kırmızı arayüzün yerine: koyu ceviz ahşap, parşömen,
+   pirinç/bronz, deri/kumaş takım flamaları, orman yeşili ve bordo temalı
+   premium bir masa oyunu görünümü. Oyun mantığı (app.js) değişmedi; burada
+   yalnızca görsel katman yeniden kuruldu.
+   ============================================================================= */
 
 * {
   box-sizing: border-box;
 }
 
-html, body, #root {
-  height: 100%;
+/* ---------------------------------------------------------------------------
+   Design tokens
+   --------------------------------------------------------------------------- */
+:root {
+  --wood-950: #17100B;
+  --wood-900: #21140D;
+  --wood-800: #2D1A10;
+  --wood-700: #3A2112;
+  --wood-600: #4B2A16;
+  --wood-500: #5C3620;
+
+  --parchment-100: #EAD3A3;
+  --parchment-200: #D8BB82;
+  --parchment-300: #CFAE76;
+  --parchment-400: #BE9C63;
+
+  --bronze-200: #E1C48A;
+  --bronze-300: #D1AC62;
+  --bronze-500: #8F6A31;
+  --bronze-600: #795323;
+  --bronze-700: #634018;
+  --bronze-900: #4D3217;
+
+  --forest-400: #4C7F52;
+  --forest-500: #3E6B45;
+  --forest-600: #2F5233;
+  --forest-700: #244027;
+  --forest-900: #16261A;
+
+  --burgundy-400: #A33636;
+  --burgundy-500: #8C2A2A;
+  --burgundy-600: #6B1F1F;
+  --burgundy-700: #591919;
+  --burgundy-900: #3A1010;
+
+  --metal-300: #9AA0A8;
+  --metal-400: #7C828B;
+  --metal-500: #656B73;
+  --metal-700: #454951;
+  --metal-900: #2B2E33;
+
+  --text-primary: #E8D8B5;
+  --text-secondary: #BDAA84;
+  --text-muted: #8C7A61;
+  --text-on-parchment: #291A0E;
+  --text-on-parchment-soft: #4A3116;
+  --text-gold: #E1C48A;
+  --text-gold-strong: #F0DCAE;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-panel: 0 14px 30px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --font-display: 'Cinzel', 'Arvo', serif;
+  --font-body: 'Arvo', 'Georgia', serif;
 }
 
+html, body, #root {
+  height: 100%;
+  height: 100dvh;
+}
+
+html {
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Zemin — koyu ceviz ahşap masa. Katmanlı gradyanlarla hafif damar/doku
+   hissi verir; ağır bir texture görseli kullanılmıyor (performans).
+   --------------------------------------------------------------------------- */
 body {
   margin: 0;
-  background-color: #141414;
-  color: #f5f5f1;
-  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow: hidden;
   overscroll-behavior-y: contain;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background-color: var(--wood-950);
+  background-image:
+    radial-gradient(ellipse at 15% -10%, rgba(216, 187, 130, 0.10), transparent 55%),
+    radial-gradient(ellipse at 90% 110%, rgba(0, 0, 0, 0.5), transparent 60%),
+    repeating-linear-gradient(100deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 2px, transparent 2px, transparent 7px),
+    repeating-linear-gradient(100deg, rgba(255, 255, 255, 0.015) 0px, transparent 1px, transparent 5px),
+    linear-gradient(165deg, var(--wood-800) 0%, var(--wood-950) 55%, var(--wood-950) 100%);
+  position: relative;
+}
+body::after {
+  /* hafif vignette — kenarlar biraz daha koyu, dikkat merkeze toplanır */
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.4) 100%);
 }
 
 /* Dokunmatik cihazlarda çift dokunma yakınlaştırmasını ve mavi vurguyu kaldır */
@@ -31,175 +122,268 @@ input, select, textarea {
 }
 
 .font-display {
-  font-family: 'Bebas Neue', 'Roboto', sans-serif;
+  font-family: var(--font-display);
   letter-spacing: 0.04em;
 }
 
-/* Netflix-style radial vignette background */
-.netflix-bg {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background:
-    radial-gradient(ellipse at top, rgba(229, 9, 20, 0.12), transparent 60%),
-    linear-gradient(180deg, #000000 0%, #141414 40%);
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(209, 172, 98, 0.55);
 }
 
+::selection {
+  background: rgba(209, 172, 98, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Açılış ekranı (splash) ---------- */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: radial-gradient(ellipse at center, var(--wood-800), var(--wood-950));
+  transition: opacity 0.3s ease;
+}
+#splash.hidden { opacity: 0; pointer-events: none; }
+.splash-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(160deg, var(--wood-600), var(--wood-900));
+  border: 2px solid var(--bronze-500);
+  color: var(--bronze-200);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.splash-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 3px solid rgba(225, 196, 138, 0.18);
+  border-top-color: var(--bronze-300);
+  animation: splashSpin 0.8s linear infinite;
+}
+@keyframes splashSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------------------------------------------------------------------
+   Ekran kabuğu — her ekran kendi 100dvh yüksekliğine oturur, gerektiğinde
+   yalnızca kendi içinde kayar (bkz. app.js redesign notları).
+   --------------------------------------------------------------------------- */
+.app-screen {
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  position: relative;
+  z-index: 2;
+}
+.min-h-screen { min-height: 100vh; min-height: 100dvh; }
+
 .scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+
+/* Masaüstünde telefon UI'sini devasa büyütmemek için ortalanmış dar bir panel */
+@media (min-width: 640px) {
+  .app-screen {
+    max-width: 480px;
+    margin: 0 auto;
+    border-left: 1px solid rgba(0, 0, 0, 0.4);
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.6);
+  }
+}
 
 /* ---------- Fade / scale transitions ---------- */
 .fade-in {
-  animation: fadeIn 0.5s ease both;
+  animation: fadeIn 0.35s ease both;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .pop-in {
-  animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1) both;
+  animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1) both;
 }
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.85); }
+  from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 
-/* ---------- Profile tiles ---------- */
-.profile-tile {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.profile-tile:hover {
-  transform: scale(1.06);
-}
-.profile-tile .avatar {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.profile-tile:hover .avatar {
-  box-shadow: 0 0 0 3px #E50914;
-}
-
-/* ---------- Progress bar (Netflix scrubber look) ---------- */
-.progress-track {
-  background: rgba(255, 255, 255, 0.12);
-  height: 10px;
-  border-radius: 999px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #b0060f, #E50914);
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.8);
-  transition: width 1s linear;
-  border-radius: 999px;
-}
-.progress-fill.urgent {
-  background: linear-gradient(90deg, #ff2b2b, #ff6a00);
-  animation: pulseUrgent 0.6s ease-in-out infinite;
-}
-@keyframes pulseUrgent {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.35); }
+/* ---------------------------------------------------------------------------
+   Parşömen paneli — okunacak içerik (ayarlar, kelime kartı, yardım, modal
+   gövdesi) için. Merkez daha açık, kenarlar hafif koyu; dokuyu radial
+   gradyanlarla verir, ağır bir görsel kullanmaz.
+   --------------------------------------------------------------------------- */
+.parchment {
+  position: relative;
+  background-color: var(--parchment-200);
+  background-image:
+    radial-gradient(circle at 25% 15%, rgba(255, 255, 255, 0.16), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(89, 60, 25, 0.14), transparent 55%),
+    radial-gradient(circle at 10% 90%, rgba(89, 60, 25, 0.10), transparent 45%),
+    linear-gradient(160deg, var(--parchment-100), var(--parchment-300));
+  color: var(--text-on-parchment);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bronze-700);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 -14px 22px rgba(89, 60, 25, 0.16);
 }
 
-/* ---------- Word card ---------- */
-.word-card {
-  background: linear-gradient(160deg, #1f1f1f 0%, #101010 100%);
-  border: 1px solid rgba(229, 9, 20, 0.35);
-  box-shadow: 0 0 40px rgba(229, 9, 20, 0.18), 0 20px 40px rgba(0,0,0,0.6);
-  border-radius: 18px;
+/* ---------------------------------------------------------------------------
+   Ahşap tabela / plaka — başlıklar, takım adı panosu, "Süre Doldu!" vb.
+   --------------------------------------------------------------------------- */
+.plaque {
+  position: relative;
+  display: inline-block;
+  padding: 12px 26px;
+  background: linear-gradient(160deg, var(--wood-600) 0%, var(--wood-800) 100%);
+  border: 2px solid var(--bronze-500);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 5px 0 var(--wood-950),
+    0 14px 26px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.45);
+}
+.plaque::before,
+.plaque::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--bronze-200), var(--bronze-700) 75%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+.plaque::before { left: 7px; }
+.plaque::after { right: 7px; }
+
+.plaque-forest {
+  background: linear-gradient(160deg, var(--forest-500) 0%, var(--forest-800, var(--forest-700)) 100%);
+  border-color: var(--bronze-300);
+  box-shadow:
+    0 5px 0 var(--forest-900),
+    0 14px 26px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.35);
+}
+.plaque-small {
+  padding: 7px 18px;
+  border-width: 1px;
+}
+.plaque-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-gold-strong);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 0 18px rgba(225, 196, 138, 0.15);
+  letter-spacing: 0.05em;
 }
 
-.forbidden-row {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.forbidden-row:last-child {
-  border-bottom: none;
-}
-
-/* ---------- Action buttons ---------- */
-.btn-action {
-  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
-}
-.btn-action:not(:disabled):hover {
-  transform: translateY(-2px) scale(1.03);
-  filter: brightness(1.1);
-}
-.btn-action:not(:disabled):active {
-  transform: translateY(0) scale(0.98);
-}
-.btn-action:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-/* ---------- Round end blackout ---------- */
-.blackout {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  display: flex;
+/* ---------------------------------------------------------------------------
+   Buton sistemi — fiziksel oyun düğmesi hissi (bevel, inset, active basma)
+   --------------------------------------------------------------------------- */
+.btn {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
-  animation: fadeIn 0.4s ease both;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 2px solid var(--bronze-600);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+  user-select: none;
+}
+.btn-large { padding: 16px 20px; font-size: 1.05rem; border-radius: var(--radius-md); }
+.btn-small { padding: 7px 14px; font-size: 0.72rem; border-radius: var(--radius-sm); }
+.btn-full { width: 100%; }
+
+.btn-primary {
+  background: linear-gradient(160deg, var(--forest-400) 0%, var(--forest-700) 100%);
+  border-color: var(--bronze-300);
+  box-shadow: 0 4px 0 var(--forest-900), 0 10px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.btn-danger {
+  background: linear-gradient(160deg, var(--burgundy-400) 0%, var(--burgundy-800, var(--burgundy-700)) 100%);
+  box-shadow: 0 4px 0 var(--burgundy-900), 0 10px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.btn-secondary {
+  background: linear-gradient(160deg, var(--wood-600) 0%, var(--wood-900) 100%);
+  box-shadow: 0 4px 0 var(--wood-950), 0 10px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.btn-metal {
+  background: linear-gradient(160deg, var(--metal-300) 0%, var(--metal-700) 100%);
+  box-shadow: 0 4px 0 var(--metal-900), 0 10px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.btn-ghost {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(225, 196, 138, 0.35);
+  box-shadow: none;
+  text-transform: none;
+  font-family: var(--font-body);
+  font-weight: 400;
+  letter-spacing: normal;
 }
 
-.flash-text {
-  animation: flashRed 1.1s ease-in-out infinite;
-}
-@keyframes flashRed {
-  0%, 100% { color: #E50914; text-shadow: 0 0 30px rgba(229,9,20,0.9); }
-  50% { color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.6); }
-}
-
-/* ---------- Winner screen ---------- */
-.trophy-glow {
-  animation: trophyGlow 2s ease-in-out infinite;
-}
-@keyframes trophyGlow {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(229,9,20,0.6)); }
-  50% { transform: scale(1.08); filter: drop-shadow(0 0 40px rgba(229,9,20,0.9)); }
+.btn:not(:disabled):hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn:not(:disabled):active { transform: translateY(3px); filter: brightness(0.95); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4), inset 0 3px 10px rgba(0, 0, 0, 0.45) !important; }
+.btn:disabled {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
-.confetti-layer {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 10;
-}
-.confetti-piece {
+/* ---------- Karta basılan brass perçin köşeleri (kelime kartı, plakalar) ---------- */
+.rivet {
   position: absolute;
-  top: -20px;
-  opacity: 0.95;
-  border-radius: 2px;
-  animation-name: confettiFall;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--bronze-200), var(--bronze-900) 75%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), inset 0 0 1px rgba(255, 255, 255, 0.4);
 }
-@keyframes confettiFall {
-  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.85; }
-}
-
-/* ---------- Score chip ---------- */
-.score-chip {
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-.score-chip.active {
-  background-color: rgba(229, 9, 20, 0.18);
-  border-color: #E50914;
-}
-
-@media (max-width: 640px) {
-  .word-card { border-radius: 14px; }
-}
+.rivet-tl { top: 10px; left: 10px; }
+.rivet-tr { top: 10px; right: 10px; }
+.rivet-bl { bottom: 10px; left: 10px; }
+.rivet-br { bottom: 10px; right: 10px; }
 
 /* =============================================================================
    Yerel yardımcı (utility) sınıflar — Tailwind CDN yerine.
    Sadece app.js içinde kullanılan sınıfları kapsar; genel amaçlı değildir.
    ============================================================================= */
 
-/* Preflight benzeri sıfırlama */
 h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
 button, input {
   font: inherit;
@@ -224,6 +408,7 @@ input { cursor: text; }
 .relative { position: relative; }
 .absolute { position: absolute; }
 .overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
 .items-center { align-items: center; }
 .items-start { align-items: flex-start; }
 .justify-center { justify-content: center; }
@@ -233,7 +418,6 @@ input { cursor: text; }
 .z-10 { z-index: 10; }
 
 /* Boyutlar */
-.min-h-screen { min-height: 100vh; min-height: 100dvh; }
 .w-full { width: 100%; }
 .w-6 { width: 1.5rem; }
 .w-24 { width: 6rem; }
@@ -256,6 +440,7 @@ input { cursor: text; }
 .gap-4 { gap: 1rem; }
 .gap-6 { gap: 1.5rem; }
 .gap-10 { gap: 2.5rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
 .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
 .px-4 { padding-left: 1rem; padding-right: 1rem; }
 .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
@@ -272,19 +457,35 @@ input { cursor: text; }
 .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
 .p-6 { padding: 1.5rem; }
 .p-8 { padding: 2rem; }
+.pb-4 { padding-bottom: 1rem; }
+.pb-5 { padding-bottom: 1.25rem; }
+/* app.js içinde 4 yerde ("py-4"/"pb-5"/"py-3" ile birlikte, ayrıca .install-banner
+   üzerinde) kullanılan .pb-safe için önceden hiç kural tanımlı değildi (dead class).
+   Kasıtlı olarak padding-bottom DEĞİL margin-bottom kullanılıyor: aynı elemanda
+   birlikte bulunduğu .py-4/.pb-5/.py-3 zaten padding-bottom belirliyor — eğer
+   .pb-safe de padding-bottom'a yazsaydı, kaynak sırasına göre o değerleri
+   tamamen ezip çentiksiz cihazlarda (env(...)=0) boşluğu sıfırlardı. margin-bottom
+   ise onlara EK olarak uygulanır. position:fixed;bottom:0 olan .install-banner
+   üzerinde de aynı özellik doğru çalışır: margin-bottom, sabit elemanın alt
+   kenarını viewport tabanından yukarı iter (home-indicator/gesture-bar payı). */
+.pb-safe { margin-bottom: env(safe-area-inset-bottom); }
 .mb-1 { margin-bottom: 0.25rem; }
 .mb-2 { margin-bottom: 0.5rem; }
 .mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
 .mb-6 { margin-bottom: 1.5rem; }
 .mb-8 { margin-bottom: 2rem; }
 .mb-10 { margin-bottom: 2.5rem; }
 .mb-12 { margin-bottom: 3rem; }
+.mt-1 { margin-top: 0.25rem; }
 .mt-2 { margin-top: 0.5rem; }
 .mt-3 { margin-top: 0.75rem; }
 .mt-6 { margin-top: 1.5rem; }
 .mt-14 { margin-top: 3.5rem; }
 .mt-16 { margin-top: 4rem; }
+.my-6 { margin-top: 1.5rem; margin-bottom: 1.5rem; }
 .space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
 .space-y-10 > * + * { margin-top: 2.5rem; }
 
 /* Tipografi */
@@ -292,11 +493,13 @@ input { cursor: text; }
 .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
 .text-base { font-size: 1rem; line-height: 1.5rem; }
 .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-.text-5xl { font-size: 3rem; line-height: 1; }
-.text-6xl { font-size: 3.75rem; line-height: 1; }
-.text-7xl { font-size: 4.5rem; line-height: 1; }
-.text-8xl { font-size: 6rem; line-height: 1; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-4xl { font-size: 2.1rem; line-height: 2.4rem; }
+.text-5xl { font-size: 2.75rem; line-height: 1.1; }
+.text-6xl { font-size: 3.4rem; line-height: 1.1; }
+.text-7xl { font-size: 4rem; line-height: 1.1; }
+.text-8xl { font-size: 5.2rem; line-height: 1.1; }
 .text-center { text-align: center; }
 .uppercase { text-transform: uppercase; }
 .tracking-wide { letter-spacing: 0.025em; }
@@ -305,50 +508,213 @@ input { cursor: text; }
 .font-semibold { font-weight: 600; }
 .font-bold { font-weight: 700; }
 
-/* Renkler */
-.text-white { color: #ffffff; }
-.text-gray-200 { color: #e5e7eb; }
-.text-gray-300 { color: #d1d5db; }
-.text-gray-400 { color: #9ca3af; }
-.text-gray-500 { color: #6b7280; }
-.text-red-500 { color: #ef4444; }
-.text-red-600 { color: #dc2626; }
-.text-green-500 { color: #22c55e; }
+/* Renkler — Tailwind benzeri isimler korunur (app.js bunlara referans verir)
+   ama değerler yeni ahşap/parşömen/bronz paletine bağlanır. */
+.text-white { color: var(--text-gold-strong); }
+.text-gray-200 { color: var(--text-primary); }
+.text-gray-300 { color: var(--text-secondary); }
+.text-gray-400 { color: var(--text-secondary); }
+.text-gray-500 { color: var(--text-muted); }
+.text-red-500 { color: var(--burgundy-400); }
+.text-red-600 { color: var(--burgundy-500); }
+.text-green-500 { color: var(--forest-400); }
 .bg-transparent { background-color: transparent; }
-.bg-gray-600 { background-color: #4b5563; }
-.bg-gray-800 { background-color: #1f2937; }
-.bg-black\/40 { background-color: rgba(0, 0, 0, 0.4); }
-.bg-\[\#2b2b2b\] { background-color: #2b2b2b; }
-.placeholder-gray-500::placeholder { color: #6b7280; }
+.bg-gray-600 { background-color: var(--metal-700); }
+.bg-gray-800 { background-color: var(--wood-800); }
+.bg-black\/40 { background-color: rgba(23, 16, 11, 0.55); }
+.bg-\[\#2b2b2b\] { background-color: var(--wood-900); }
+.placeholder-gray-500::placeholder { color: var(--text-muted); }
 
 /* Kenarlık / köşe */
 .rounded { border-radius: 0.25rem; }
-.rounded-md { border-radius: 0.375rem; }
-.rounded-lg { border-radius: 0.5rem; }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
 .rounded-full { border-radius: 9999px; }
 .border { border-width: 1px; }
 .border-2 { border-width: 2px; }
 .border-b { border-bottom-width: 1px; }
 .border-dashed { border-style: dashed; }
 .border-transparent { border-color: transparent; }
-.border-gray-600 { border-color: #4b5563; }
-.border-gray-700 { border-color: #374151; }
+.border-gray-600 { border-color: var(--bronze-700); }
+.border-gray-700 { border-color: var(--bronze-900); }
 .outline-none { outline: none; }
 
 /* Etkileşim durumları */
-.hover\:bg-red-600:hover { background-color: #dc2626; }
-.hover\:text-white:hover { color: #ffffff; }
-.focus\:text-white:focus { color: #ffffff; }
-.focus\:border-gray-500:focus { border-color: #6b7280; }
-.focus\:ring-2.focus\:ring-red-600:focus { box-shadow: 0 0 0 2px #dc2626; }
-.group:hover .group-hover\:border-gray-400 { border-color: #9ca3af; }
-.group:hover .group-hover\:text-gray-300 { color: #d1d5db; }
+.hover\:bg-red-600:hover { background-color: var(--burgundy-500); }
+.hover\:text-white:hover { color: var(--text-gold-strong); }
+.focus\:text-white:focus { color: var(--text-gold-strong); }
+.focus\:border-gray-500:focus { border-color: var(--bronze-300); }
+.focus\:ring-2.focus\:ring-red-600:focus { box-shadow: 0 0 0 2px var(--bronze-300); }
+.group:hover .group-hover\:border-gray-400 { border-color: var(--bronze-300); }
+.group:hover .group-hover\:text-gray-300 { color: var(--text-primary); }
 .disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
 .disabled\:opacity-40:disabled { opacity: 0.4; }
 .underline { text-decoration: underline; }
 
-/* sm: (>=640px) responsive varyantlar */
-/* ---------- Kategori seçimi (Netflix tarzı tür kartları) ---------- */
+@media (min-width: 640px) {
+  .sm\:text-base { font-size: 1rem; line-height: 1.5rem; }
+  .sm\:text-5xl { font-size: 2.75rem; line-height: 1.1; }
+  .sm\:text-6xl { font-size: 3.4rem; line-height: 1.1; }
+  .sm\:text-7xl { font-size: 4rem; line-height: 1.1; }
+  .sm\:text-8xl { font-size: 5.2rem; line-height: 1.1; }
+  .sm\:w-36 { width: 9rem; }
+  .sm\:h-32 { height: 8rem; }
+  .sm\:gap-3 { gap: 0.75rem; }
+  .sm\:gap-4 { gap: 1rem; }
+  .sm\:gap-10 { gap: 2.5rem; }
+  .sm\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+  .sm\:p-8 { padding: 2rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   Marka logosu (Profil ekranı üstü)
+   --------------------------------------------------------------------------- */
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.app-logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(160deg, var(--wood-600), var(--wood-900));
+  border: 2px solid var(--bronze-500);
+  color: var(--bronze-200);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.app-logo-word {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Takım flaması (banner) — Kim Oynuyor ekranı
+   --------------------------------------------------------------------------- */
+.profile-tile {
+  transition: transform 0.2s ease;
+}
+.profile-tile:hover { transform: translateY(-2px); }
+
+.banner-card {
+  /* Sabit yükseklik kasıtlı: aspect-ratio kullanılsaydı kart yüksekliği telefon
+     genişliğine bağlı olurdu ve dar/yüksek ekranlarda (bkz. gerçek cihaz testi)
+     iki satır takım kartı + geri kalan içerik ekranın toplam yüksekliğini
+     kolayca aşıyordu ("Takım Ekle" kutusu ve altındaki DEVAM ET butonu ekran
+     dışına taşıyordu). Sabit 132px, avatar + isim için yeterli ama iki satır
+     olduğunda bile toplam yüksekliği makul tutuyor. */
+  position: relative;
+  width: 100%;
+  height: 132px;
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 8px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.12), inset 0 -10px 16px rgba(0, 0, 0, 0.3);
+}
+.banner-burgundy { background: linear-gradient(170deg, var(--burgundy-400), var(--burgundy-800, var(--burgundy-700)) 80%); }
+.banner-forest { background: linear-gradient(170deg, var(--forest-400), var(--forest-800, var(--forest-700)) 80%); }
+.banner-navy { background: linear-gradient(170deg, #4A5A72, #23303F 80%); }
+.banner-mustard { background: linear-gradient(170deg, #B08A3E, #6E5323 80%); }
+
+.avatar-frame {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a2410, #17100b 75%);
+  border: 3px solid var(--bronze-300);
+  box-shadow: 0 0 0 2px var(--wood-950), 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+@media (min-width: 640px) {
+  .avatar-frame { width: 84px; height: 84px; font-size: 2.4rem; }
+}
+
+.banner-team-name {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-gold-strong);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.banner-team-name input {
+  background: transparent;
+  text-align: center;
+  color: var(--text-gold-strong);
+  outline: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-bottom: 1px dashed transparent;
+}
+.banner-team-name input:focus { border-bottom-color: rgba(255, 255, 255, 0.5); }
+
+.team-remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--wood-900);
+  border: 1px solid var(--bronze-600);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  cursor: pointer;
+}
+.team-remove-btn::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
+.team-remove-btn:hover { background: var(--burgundy-500); color: var(--text-gold-strong); }
+
+.add-team-slot {
+  width: 100%;
+  height: 132px;
+  border: 2px dashed var(--bronze-700);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+.add-team-slot:hover { border-color: var(--bronze-300); color: var(--text-secondary); background: rgba(0, 0, 0, 0.28); }
+
+/* ---------------------------------------------------------------------------
+   Kategori seçimi
+   --------------------------------------------------------------------------- */
 .category-scroll-wrapper {
   display: flex;
   align-items: center;
@@ -356,12 +722,13 @@ input { cursor: text; }
 }
 .category-scroll-btn {
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #f5f5f1;
-  font-size: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--wood-900);
+  border: 1px solid var(--bronze-700);
+  color: var(--text-primary);
+  font-size: 1.1rem;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -369,7 +736,7 @@ input { cursor: text; }
   cursor: pointer;
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
-.category-scroll-btn:hover { background: rgba(229, 9, 20, 0.85); transform: scale(1.08); }
+.category-scroll-btn:hover { background: var(--bronze-700); transform: scale(1.06); }
 .category-row {
   display: flex;
   gap: 0.5rem;
@@ -383,150 +750,256 @@ input { cursor: text; }
 .category-tile {
   position: relative;
   flex: 0 0 auto;
-  width: 84px;
-  height: 50px;
-  border-radius: 8px;
-  border: 2px solid transparent;
+  width: 86px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--bronze-700);
   cursor: pointer;
   display: flex;
-  align-items: flex-end;
-  padding: 5px 6px;
-  transition: transform 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: linear-gradient(160deg, var(--parchment-200), var(--parchment-400));
+  transition: transform 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
-.category-tile:hover { transform: translateY(-2px) scale(1.04); }
-.category-tile.active { border-color: #E50914; }
-.category-tile.inactive { opacity: 0.45; filter: grayscale(0.35); }
-.category-tile.inactive:hover { opacity: 0.7; }
+.category-tile:hover { transform: translateY(-2px); }
+.category-tile.active { border-color: var(--forest-500); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 0 0 2px var(--forest-500); }
+.category-tile.inactive { opacity: 0.55; filter: saturate(0.7); }
+.category-tile.inactive:hover { opacity: 0.85; }
+.category-tile-icon { font-size: 1.1rem; line-height: 1; }
 .category-tile-label {
-  color: #ffffff;
+  color: var(--text-on-parchment);
   font-weight: 700;
-  font-size: 0.62rem;
-  line-height: 1.1;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  font-size: 0.6rem;
+  line-height: 1.05;
+  text-align: center;
+  padding: 0 4px;
 }
 .check-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 15px;
-  height: 15px;
-  border-radius: 999px;
-  background: #E50914;
+  top: -5px;
+  right: -5px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--forest-500);
   color: #fff;
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 6px rgba(229, 9, 20, 0.7);
+  border: 1px solid var(--bronze-300);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* ---------- Maç sonu istatistik dashboard'u ---------- */
-.dashboard-card {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 18px 20px;
-  margin-bottom: 16px;
+/* ---------------------------------------------------------------------------
+   Ayar seçenekleri (süre / zorluk / hedef / geri bildirim)
+   --------------------------------------------------------------------------- */
+.section-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--bronze-900);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
 }
-.dashboard-card-title {
-  font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 0.04em;
-  font-size: 1.3rem;
-  color: #ffffff;
-  margin-bottom: 14px;
+/* Parşömen panel üzerindeki metin bağlantıları (örn. "Tümünü Seç"). Eskiden
+   text-gray-400 kullanıyordu — bu, koyu ahşap zemin için tasarlanmış açık
+   bir renkti ve parşömenin kendisi de açık renkli olduğu için neredeyse
+   görünmez oluyordu. */
+.parchment-link {
+  color: var(--text-on-parchment-soft);
+  text-decoration: underline;
+  font-weight: 700;
 }
-.stat-tile {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 14px 16px;
+.parchment-link:hover {
+  color: var(--burgundy-500);
 }
-.stat-tile-label {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-bottom: 6px;
+.option-chip {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--text-on-parchment);
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--bronze-600);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
-.stat-tile-value {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #ffffff;
+.option-chip:hover { filter: brightness(1.05); }
+.option-chip:active { transform: translateY(1px); }
+.option-chip.active {
+  background: linear-gradient(160deg, var(--forest-400), var(--forest-700));
+  color: var(--text-gold-strong);
+  border-color: var(--bronze-300);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
-.status-legend {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 14px;
+.field-input {
+  background: var(--wood-900);
+  border: 1px solid var(--bronze-700);
+  color: var(--parchment-100);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  outline: none;
+  width: 6rem;
 }
-.legend-item {
-  display: flex;
+.field-input:focus { box-shadow: 0 0 0 2px rgba(209, 172, 98, 0.5); }
+.field-input:disabled { opacity: 0.45; }
+.field-input::placeholder { color: var(--text-muted); }
+
+.toggle-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: #d1d5db;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--text-on-parchment);
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--bronze-600);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: filter 0.12s ease;
 }
-.legend-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  display: inline-block;
-}
-.team-perf-row { margin-bottom: 14px; }
-.team-perf-row:last-child { margin-bottom: 0; }
-.team-perf-name {
-  font-size: 0.85rem;
-  color: #e5e7eb;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-.team-perf-bar {
-  display: flex;
-  height: 14px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
-  gap: 2px;
-}
-.team-perf-seg {
-  height: 100%;
-  min-width: 2px;
-}
-.team-perf-summary {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 6px;
-}
-.struggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: rgba(229, 9, 20, 0.08);
-  margin-bottom: 8px;
-}
-.struggle-row:last-child { margin-bottom: 0; }
-.struggle-rank {
-  font-family: 'Bebas Neue', sans-serif;
-  color: #E50914;
-  font-size: 1rem;
-  width: 28px;
-}
-.struggle-word {
-  flex: 1;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-.struggle-badge {
-  font-size: 0.7rem;
-  color: #d1d5db;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 3px 8px;
-  border-radius: 999px;
+.toggle-chip.active {
+  background: linear-gradient(160deg, var(--forest-400), var(--forest-700));
+  color: var(--text-gold-strong);
+  border-color: var(--bronze-300);
 }
 
-/* ---------- Oyun içi kontrol butonları (duraklat / bitir) ---------- */
+/* ---------------------------------------------------------------------------
+   Skor rozeti (üstte her zaman görünür). ScoreBar yalnızca GameScreen ve
+   ReadyScreen'de kullanılır — ikisinde de sol üstte game-controls/dekoratif
+   ikon, sağ üstte history-btn sabit (fixed) konumdadır. Üst boşluk bu sabit
+   düğmelerin altına düşecek kadar geniş olmalı, yoksa skor rozetleri
+   düğmelerin üzerine biner.
+   --------------------------------------------------------------------------- */
+.score-bar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  /* game-control-btn/history-btn: top: max(14px, safe-area), height 38px —
+     en kötü durumda (çentiksiz telefon) alt kenarları 52px'te biter. Önceki
+     56px değeri bunu yalnızca 4px farkla geçiyordu; bazı cihazlarda hâlâ
+     binişmeye neden oluyordu. Şimdi bolca pay bırakıyoruz. */
+  padding: calc(env(safe-area-inset-top) + 84px) 12px 10px;
+}
+.score-chip {
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--bronze-700);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.score-chip.active {
+  border-color: var(--bronze-300);
+  box-shadow: 0 0 0 1px var(--bronze-300), 0 0 12px rgba(225, 196, 138, 0.25);
+}
+
+/* ---------------------------------------------------------------------------
+   Kelime kartı (parşömen)
+   --------------------------------------------------------------------------- */
+.word-card {
+  background-color: var(--parchment-200);
+  background-image:
+    radial-gradient(circle at 25% 15%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(89, 60, 25, 0.14), transparent 55%),
+    linear-gradient(160deg, var(--parchment-100), var(--parchment-300));
+  border: 1px solid var(--bronze-700);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-lg);
+}
+.word-card h2 { color: var(--text-on-parchment); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25); }
+
+.forbidden-row {
+  border-bottom: 1px solid rgba(41, 26, 14, 0.15);
+}
+.forbidden-row:last-child {
+  border-bottom: none;
+}
+.forbidden-row .text-gray-300 { color: var(--text-on-parchment-soft); }
+
+@media (max-width: 640px) {
+  .word-card { border-radius: 12px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Kelime kartı alanı — bkz. min-height:0 notu, alt butonların ekran dışına
+   itilmesini engeller.
+   --------------------------------------------------------------------------- */
+.game-card-area {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Dairesel geri sayım — bronz dış halka, koyu iç yüzey, yeşil/amber/bordo
+   ilerleme yayı (SVG stroke-dashoffset; conic-gradient yerine tercih edildi
+   çünkü tam saniye hassasiyetinde daha güvenilir ve daha az CSS uyumluluk
+   riski taşıyor — görsel sonuç aynı).
+   --------------------------------------------------------------------------- */
+.circular-timer {
+  position: relative;
+  margin: 0 auto;
+}
+.circular-timer svg { display: block; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)); }
+.circular-timer-bezel { fill: var(--wood-900); stroke: var(--bronze-500); }
+.circular-timer-track { stroke: rgba(0, 0, 0, 0.35); }
+.circular-timer-fill {
+  stroke: var(--forest-500);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+}
+.circular-timer.urgent .circular-timer-fill { stroke: var(--burgundy-500); }
+.circular-timer.warning .circular-timer-fill { stroke: #B08A3E; }
+.circular-timer-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  color: var(--text-gold-strong);
+  letter-spacing: 0.02em;
+}
+.circular-timer-number { font-size: 1.9rem; font-weight: 700; line-height: 1; }
+.circular-timer-unit { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-secondary); margin-top: 2px; }
+.circular-timer.urgent .circular-timer-number {
+  color: #f0b8b8;
+  animation: pulseUrgent 0.6s ease-in-out infinite;
+}
+@keyframes pulseUrgent {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.35); }
+}
+
+/* ---------------------------------------------------------------------------
+   Aksiyon geri bildirimi — Doğru/Tabu/Pas tam ekran flaş
+   --------------------------------------------------------------------------- */
+.action-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 45;
+  animation: actionFlash 0.38s ease-out forwards;
+}
+.action-flash.correct { background: radial-gradient(ellipse at center, rgba(62, 107, 69, 0.4), transparent 70%); }
+.action-flash.tabu { background: radial-gradient(ellipse at center, rgba(140, 42, 42, 0.45), transparent 70%); }
+.action-flash.pass { background: radial-gradient(ellipse at center, rgba(101, 107, 115, 0.4), transparent 70%); }
+@keyframes actionFlash {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Oyun içi kontrol butonları (duraklat / geri al / bitir)
+   --------------------------------------------------------------------------- */
 .game-controls {
   position: fixed;
   top: max(14px, env(safe-area-inset-top));
@@ -536,13 +1009,12 @@ input { cursor: text; }
   gap: 8px;
 }
 .game-control-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f5f5f1;
-  font-size: 1rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--wood-600), var(--wood-900));
+  border: 1px solid var(--bronze-600);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -551,86 +1023,422 @@ input { cursor: text; }
 }
 .game-control-btn:hover {
   transform: scale(1.08);
-  background: rgba(229, 9, 20, 0.85);
+  border-color: var(--bronze-300);
 }
+.game-control-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.game-control-btn:disabled:hover { transform: none; }
 
-/* ---------- Oyun içi büyük süre göstergesi ---------- */
-.game-timer {
-  text-align: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.75rem;
-  line-height: 1;
-  color: #ffffff;
-  letter-spacing: 0.05em;
-}
-.game-timer.urgent {
-  color: #E50914;
-  text-shadow: 0 0 18px rgba(229, 9, 20, 0.7);
-  animation: pulseUrgent 0.6s ease-in-out infinite;
-}
-
-/* ---------- Tur geçmişi paneli ---------- */
-.pb-safe { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
-
+/* ---------------------------------------------------------------------------
+   Sağ üst bant / buton (geçmiş, yardım)
+   --------------------------------------------------------------------------- */
 .history-btn {
   position: fixed;
   top: max(14px, env(safe-area-inset-top));
   right: max(14px, env(safe-area-inset-right));
   z-index: 40;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f5f5f1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(160deg, var(--wood-600), var(--wood-900));
+  border: 1px solid var(--bronze-600);
+  color: var(--text-primary);
   padding: 8px 14px;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
 .history-btn:hover {
-  transform: scale(1.05);
-  background: rgba(229, 9, 20, 0.85);
+  transform: scale(1.04);
+  border-color: var(--bronze-300);
 }
-.history-overlay {
+
+/* ---------------------------------------------------------------------------
+   Modal sistemi — koyu ahşap çerçeve + parşömen içerik
+   --------------------------------------------------------------------------- */
+.modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(10, 6, 3, 0.72);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 60;
   padding: 1rem;
 }
-.history-modal {
-  background: linear-gradient(160deg, #1f1f1f 0%, #101010 100%);
-  border: 1px solid rgba(229, 9, 20, 0.35);
-  border-radius: 16px;
+.modal-card {
+  background: linear-gradient(160deg, var(--wood-700), var(--wood-900));
+  border: 2px solid var(--bronze-500);
+  border-radius: var(--radius-lg);
   max-width: 480px;
   width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 1.5rem;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
 }
+.modal-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--bronze-700);
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-gold-strong);
+  font-size: 1.2rem;
+  letter-spacing: 0.03em;
+}
+.modal-close {
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  padding: 4px;
+}
+.modal-close:hover { color: var(--text-gold-strong); }
+.modal-body {
+  margin: 14px;
+  margin-top: 0;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  overflow-y: auto;
+  background-color: var(--parchment-200);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.16), transparent 55%),
+    linear-gradient(160deg, var(--parchment-100), var(--parchment-300));
+  color: var(--text-on-parchment);
+  border: 1px solid var(--bronze-700);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.modal-footer {
+  padding: 14px 18px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 .history-row {
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(41, 26, 14, 0.15);
+  font-size: 0.88rem;
 }
 .history-row:last-child { border-bottom: none; }
 
+.rule-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(41, 26, 14, 0.12);
+  align-items: flex-start;
+}
+.rule-row:last-child { border-bottom: none; }
+.rule-number {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--burgundy-500);
+  flex: 0 0 auto;
+  width: 22px;
+}
+
+/* ---------------------------------------------------------------------------
+   Maç sonu istatistik dashboard'u
+   --------------------------------------------------------------------------- */
+.dashboard-card {
+  width: 100%;
+  background: linear-gradient(160deg, rgba(59, 38, 20, 0.55), rgba(23, 16, 11, 0.6));
+  border: 1px solid var(--bronze-700);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.dashboard-card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 1.1rem;
+  color: var(--text-gold);
+  margin-bottom: 12px;
+}
+.stat-tile {
+  background: linear-gradient(160deg, rgba(59, 38, 20, 0.55), rgba(23, 16, 11, 0.6));
+  border: 1px solid var(--bronze-700);
+  border-radius: var(--radius-md);
+  padding: 13px 15px;
+}
+.stat-tile-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.stat-tile-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+}
+.status-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.team-perf-row { margin-bottom: 13px; }
+.team-perf-row:last-child { margin-bottom: 0; }
+.team-perf-name {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.team-perf-bar {
+  display: flex;
+  height: 13px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.35);
+  gap: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+.team-perf-seg {
+  height: 100%;
+  min-width: 2px;
+}
+.team-perf-summary {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.struggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(140, 42, 42, 0.12);
+  margin-bottom: 8px;
+  border: 1px solid rgba(140, 42, 42, 0.25);
+}
+.struggle-row:last-child { margin-bottom: 0; }
+.struggle-rank {
+  font-family: var(--font-display);
+  color: var(--bronze-300);
+  font-size: 1rem;
+  width: 26px;
+  flex: 0 0 auto;
+}
+.struggle-word {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.struggle-badge {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px 8px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.all-time-tag {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.trophy-glow {
+  color: var(--bronze-300);
+  filter: drop-shadow(0 0 16px rgba(225, 196, 138, 0.45));
+  animation: trophyGlow 2.2s ease-in-out infinite;
+}
+@keyframes trophyGlow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  opacity: 0.9;
+  border-radius: 1px;
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(540deg); opacity: 0.75; }
+}
+
+/* ---------------------------------------------------------------------------
+   Tam ekran dramatik ekranlar (duraklatıldı / süre doldu) — koyu ahşap
+   vinyet, düz siyah değil.
+   --------------------------------------------------------------------------- */
+.blackout {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, var(--wood-800) 0%, var(--wood-950) 75%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.4s ease both;
+}
 @media (min-width: 640px) {
-  .sm\:text-base { font-size: 1rem; line-height: 1.5rem; }
-  .sm\:text-5xl { font-size: 3rem; line-height: 1; }
-  .sm\:text-6xl { font-size: 3.75rem; line-height: 1; }
-  .sm\:text-7xl { font-size: 4.5rem; line-height: 1; }
-  .sm\:text-8xl { font-size: 6rem; line-height: 1; }
-  .sm\:w-36 { width: 9rem; }
-  .sm\:h-32 { height: 8rem; }
-  .sm\:gap-3 { gap: 0.75rem; }
-  .sm\:gap-4 { gap: 1rem; }
-  .sm\:gap-10 { gap: 2.5rem; }
-  .sm\:px-8 { padding-left: 2rem; padding-right: 2rem; }
-  .sm\:p-8 { padding: 2rem; }
+  .blackout { max-width: 480px; margin: 0 auto; }
+}
+
+.flash-text {
+  animation: flashGold 1.2s ease-in-out infinite;
+}
+@keyframes flashGold {
+  0%, 100% { color: var(--bronze-200); text-shadow: 0 0 24px rgba(225, 196, 138, 0.5); }
+  50% { color: var(--text-gold-strong); text-shadow: 0 0 10px rgba(255, 255, 255, 0.35); }
+}
+
+.laurel-deco {
+  color: var(--bronze-300);
+  opacity: 0.85;
+}
+
+/* ---------------------------------------------------------------------------
+   Tur sonu skor taşları
+   --------------------------------------------------------------------------- */
+.score-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--bronze-600);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.score-tile-correct { background: linear-gradient(160deg, var(--forest-400), var(--forest-700)); }
+.score-tile-tabu { background: linear-gradient(160deg, var(--burgundy-400), var(--burgundy-700)); }
+.score-tile-pass { background: linear-gradient(160deg, var(--metal-400), var(--metal-700)); }
+.score-tile-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-display);
+}
+.score-tile-value {
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #fff;
+  font-family: var(--font-display);
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Bildirim bantları (yeni sürüm / PWA kurulum)
+   --------------------------------------------------------------------------- */
+.update-banner {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(160deg, var(--wood-700), var(--wood-900));
+  border: 1px solid var(--burgundy-400);
+  color: var(--text-primary);
+  padding: 7px 8px 7px 14px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.update-banner-btn {
+  background: linear-gradient(160deg, var(--burgundy-400), var(--burgundy-700));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid var(--bronze-300);
+  font-family: var(--font-display);
+}
+
+.install-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 65;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(160deg, var(--wood-700), var(--wood-950));
+  border-top: 2px solid var(--bronze-600);
+  padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+}
+.install-banner-text {
+  flex: 1;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.25;
+}
+.install-banner-btn {
+  background: linear-gradient(160deg, var(--forest-400), var(--forest-700));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid var(--bronze-300);
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+}
+.install-banner-close {
+  color: var(--text-muted);
+  padding: 4px 6px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  display: flex;
+}
+
+/* ---------------------------------------------------------------------------
+   Yatay mod / kısa boylu ekranlarda kompakt oyun düzeni
+   --------------------------------------------------------------------------- */
+@media (orientation: landscape) and (max-height: 520px) {
+  .word-card { padding: 10px 20px; }
+  .word-card h2 { font-size: 1.7rem; margin-bottom: 8px; }
+  .forbidden-row { padding: 3px 2px; }
+  .circular-timer { transform: scale(0.76); margin-top: -6px; margin-bottom: -6px; }
+  .trophy-glow { width: 44px !important; height: 44px !important; }
 }
